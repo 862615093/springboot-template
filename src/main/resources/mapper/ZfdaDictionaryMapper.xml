@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ww.template.mapper.ZfdaDictionaryMapper">
+
+    <resultMap id="selectTreeDictByParentCodeResultMap" type="com.ww.template.vo.DictionaryTreeVo">
+        <id column="id" property="id"/>
+        <result column="index_name" property="indexName"/>
+        <result column="index_code" property="indexCode"/>
+        <result column="index_value" property="indexValue"/>
+        <result column="index_order" property="indexOrder"/>
+        <result column="index_type" property="indexType"/>
+        <result column="index_dec" property="indexDec"/>
+        <result column="index_unit" property="indexUnit"/>
+        <result column="acquire_way" property="acquireWay"/>
+        <result column="parent_code" property="parentCode"/>
+        <result column="valid" property="valid"/>
+        <!--使用mybatis  collection 进行集合查询-->
+        <collection property="children" ofType="com.ww.template.vo.DictionaryTreeVo" select="selectTree"
+                    column="index_code" javaType="java.util.ArrayList"/>
+
+    </resultMap>
+
+    <select id="selectTreeDictByParentCode" parameterType="string" resultMap="selectTreeDictByParentCodeResultMap">
+        SELECT id,
+               index_name,
+               index_code,
+               index_value,
+               index_order,
+               index_type,
+               index_dec,
+               index_unit,
+               acquire_way,
+               parent_code,
+               valid
+        FROM zfda_dictionary
+        WHERE valid = 1
+          AND parent_code = #{parentCode}
+          AND index_type = '减分'
+        ORDER BY index_order DESC;
+    </select>
+
+    <!--关联集合查询-->
+    <select id="selectTree" resultMap="selectTreeDictByParentCodeResultMap">
+        SELECT id,
+               index_name,
+               index_code,
+               index_value,
+               index_order,
+               index_type,
+               index_dec,
+               index_unit,
+               acquire_way,
+               parent_code,
+               valid
+        FROM zfda_dictionary
+        WHERE valid = 1
+          AND parent_code = #{indexCode}
+        ORDER BY index_order DESC;
+    </select>
+
+
+    <select id="selectNodeDictByParentCode" resultType="com.ww.template.vo.DictionaryTreeVo">
+        SELECT id,
+               index_name,
+               index_code,
+               index_value,
+               index_order,
+               index_type,
+               index_dec,
+               index_unit,
+               acquire_way,
+               parent_code,
+               valid
+        FROM zfda_dictionary
+        WHERE valid = 1
+          AND index_code = #{parentCode};
+    </select>
+
+    <select id="selectNodeDictByIndexCode" resultType="com.ww.template.vo.DictionaryTreeVo">
+        SELECT id,
+               index_name,
+               index_code,
+               index_value,
+               index_order,
+               index_type,
+               index_dec,
+               index_unit,
+               acquire_way,
+               parent_code,
+               valid
+        FROM zfda_dictionary
+        WHERE valid = 1
+          AND index_code = #{indexCode};
+    </select>
+
+    <select id="queryIndexList" resultType="com.ww.template.vo.IndexVo">
+        SELECT  d3.index_name AS model,
+                d2.index_name AS type,
+                d1.index_name AS indexName,
+                d1.index_code AS indexCode,
+                d1.index_value AS indexValue,
+                d1.acquire_way AS acquireWay,
+                d1.parent_code AS parentCode,
+                d1.create_time AS createTime
+        FROM zfda_dictionary d1
+        LEFT JOIN zfda_dictionary d2 ON d2.index_code = d1.parent_code
+        LEFT JOIN zfda_dictionary d3 ON d3.index_code = d2.parent_code
+        WHERE d1.index_value IS NOT NULL
+        <if test="indexName != null and indexName != '' ">
+            and d1.index_name LIKE concat('%',#{indexName},'%')
+        </if>
+        AND d1.valid = 1
+        ORDER BY d3.index_order, d2.index_order, d1.index_order
+    </select>
+
+
+</mapper>

@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: es6
+  servlet:
+    multipart:
+      max-file-size: 20MB # 单个文件大小
+      max-request-size: 20MB # 单次请求文件总大小
+  #redis
+  redis:
+    host: 172.30.33.215
+    port: 6379
+    password: JINZONGaikanxiaoshuo@123
+    lettuce:
+      pool:
+        max-active: 8  #最大连接
+        max-idle: 8   #最大空闲连接
+        min-idle: 0   #最小空闲连接
+        max-wait: 100ms #连接等待时间
+    database: 15
+  #mysql
+  datasource:
+    url: jdbc:mysql://localhost:3306/zfda?useSSL=false
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-test-query: SELECT 1
+      connection-timeout: 10000
+      idle-timeout: 30000
+      max-lifetime: 900000
+    type: com.zaxxer.hikari.HikariDataSource
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl #开启sql日志
+  type-aliases-package: com.ww.es.pojo
+
+
+logging:
+  level:
+    cn.itcast: debug
+  pattern:
+    dateformat: HH:mm:ss:SSS
+

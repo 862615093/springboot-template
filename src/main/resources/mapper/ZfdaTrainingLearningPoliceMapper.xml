@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ww.template.mapper.ZfdaTrainingLearningPoliceMapper">
+
+    <!--民警维度详情列表-->
+    <select id="mergePoliceTrainLearn" parameterType="com.ww.template.dto.param.PoliceTrainLearnDetailParam"
+            resultType="com.ww.template.vo.PoliceTrainLearnDetailVo">
+        <choose>
+            <when test="param.searchType.toString() == 'LEARNTIME' ">
+                <include refid="queryPoliceTotalLearnTimeList"></include>
+            </when>
+            <when test="param.searchType.toString() == 'LEARNCOUNT' ">
+                <include refid="queryPoliceTotalLearnCountList"></include>
+            </when>
+            <when test="param.searchType.toString() == 'DOWNCOUNT' ">
+                <include refid="queryPoliceTotalDownCountList"></include>
+            </when>
+        </choose>
+    </select>
+
+    <!--学习总时长-->
+    <sql id="queryPoliceTotalLearnTimeList">
+        SELECT p.id               AS id,
+               p.police_name      AS policeName,
+               t.file_name        AS fileName,
+               t.file_type        AS fileType,
+               p.total_learn_time AS policeTotalLearnTime,
+               p.last_learn_time  AS policeLastLearnTime
+        FROM zfda_training_learning_police p
+                 LEFT JOIN zfda_training_learning t ON p.training_learning_id = t.id
+        WHERE p.valid = 1
+            ${ew.customSqlSegment}
+    </sql>
+
+    <!--学习总次数-->
+    <sql id="queryPoliceTotalLearnCountList">
+        SELECT p.id                AS id,
+               p.org_name          AS policeOrg,
+               p.police_name       AS policeName,
+               t.file_name         AS fileName,
+               t.file_type         AS fileType,
+               p.total_learn_count AS policeTotalLearnCount,
+               p.last_learn_time   AS policeLastLearnTime
+        FROM zfda_training_learning_police p
+                 LEFT JOIN zfda_training_learning t ON p.training_learning_id = t.id
+        WHERE p.valid = 1
+            ${ew.customSqlSegment}
+    </sql>
+
+    <!--总下载数-->
+    <sql id="queryPoliceTotalDownCountList">
+        SELECT p.id                    AS id,
+               p.org_name              AS policeOrg,
+               p.police_name           AS policeName,
+               t.file_name             AS fileName,
+               t.file_type             AS fileType,
+               p.total_download_count  AS policeTotalDownloadCount,
+               p.last_downloading_time AS policeTotalDownloadTime
+        FROM zfda_training_learning_police p
+                 LEFT JOIN zfda_training_learning t ON p.training_learning_id = t.id
+        WHERE p.valid = 1
+            ${ew.customSqlSegment}
+    </sql>
+
+    <!--培训内容维度详情列表-->
+    <select id="policeTrainLearnList" parameterType="com.ww.template.dto.param.PoliceTrainLearnQueryParam"
+            resultType="com.ww.template.vo.PoliceTrainLearnVo">
+        SELECT p.id AS id,
+        p.org_name AS orgName,
+        p.police_name AS policeName,
+        p.total_learn_time AS policeTotalLearnTime,
+        p.last_learn_time AS policeLastLearnTime,
+        p.total_download_count AS policeTotalDownloadCount
+        FROM zfda_training_learning_police p
+        WHERE p.valid = 1
+        <if test="param.policeName != null and param.policeName != '' ">
+            and p.police_name LIKE concat('%',#{param.policeName},'%')
+        </if>
+        <if test="param.orgName != null and param.orgName != '' ">
+            and p.org_name LIKE concat('%',#{param.orgName},'%')
+        </if>
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="mergeTrainLearn" parameterType="com.ww.template.dto.param.TrainLearnDetailParam"
+            resultType="com.ww.template.vo.TrainLearnDetailVo">
+        <choose>
+            <when test="param.searchType.toString() == 'LEARNTIME' ">
+                <include refid="queryTotalLearnTimeList"></include>
+            </when>
+            <when test="param.searchType.toString() == 'LEARNCOUNT' ">
+                <include refid="queryTotalLearnCountList"></include>
+            </when>
+            <when test="param.searchType.toString() == 'DOWNCOUNT' ">
+                <include refid="queryTotalDownCountList"></include>
+            </when>
+        </choose>
+    </select>
+
+    <!--学习总时长-->
+    <sql id="queryTotalLearnTimeList">
+        SELECT p.id               AS id,
+               p.org_name         AS policeOrg,
+               p.police_name      AS policeName,
+               t.file_name        AS fileName,
+               p.total_learn_time AS policeTotalLearnTime,
+               p.last_learn_time  AS policeLastLearnTime
+        FROM zfda_training_learning_police p
+                 LEFT JOIN zfda_training_learning t ON p.training_learning_id = t.id
+        WHERE p.valid = 1
+            ${ew.customSqlSegment}
+    </sql>
+
+    <!--学习总次数-->
+    <sql id="queryTotalLearnCountList">
+        SELECT p.id                AS id,
+               p.org_name          AS policeOrg,
+               p.police_name       AS policeName,
+               t.file_name         AS fileName,
+               p.total_learn_count AS policeTotalLearnCount,
+               p.last_learn_time   AS policeLastLearnTime
+        FROM zfda_training_learning_police p
+                 LEFT JOIN zfda_training_learning t ON p.training_learning_id = t.id
+        WHERE p.valid = 1
+            ${ew.customSqlSegment}
+    </sql>
+
+    <!--总下载数-->
+    <sql id="queryTotalDownCountList">
+        SELECT p.id                    AS id,
+               p.org_name              AS policeOrg,
+               p.police_name           AS policeName,
+               t.file_name             AS fileName,
+               p.total_download_count  AS policeTotalDownloadCount,
+               p.last_downloading_time AS policeTotalDownloadTime
+        FROM zfda_training_learning_police p
+                 LEFT JOIN zfda_training_learning t ON p.training_learning_id = t.id
+        WHERE p.valid = 1
+            ${ew.customSqlSegment}
+    </sql>
+
+</mapper>

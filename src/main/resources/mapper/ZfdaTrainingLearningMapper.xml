@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ww.template.mapper.ZfdaTrainingLearningMapper">
+
+    <sql id="queryTrainLearnList">
+        SELECT
+            ztl.id AS id,
+            ztl.training_learning_type AS trainingLearningType,
+            ztl.file_name AS zfFileName,
+            ztl.upload_user_name AS uploadUserName,
+            ztl.total_learn_count AS totalLearnCount,
+            ztl.total_download_count AS totalDownloadCount
+        FROM zfda_problem zp LEFT JOIN zfda_training_learning ztl ON zp.problem_code = ztl.problem_code
+        WHERE zp.valid = 1
+        <if test="param.fileName != null and param.fileName != '' ">
+            and ztl.file_name LIKE concat('%',#{param.fileName},'%')
+        </if>
+        <if test="param.trainingLearningType != null and param.trainingLearningType != '' ">
+            and ztl.training_learning_type = #{param.trainingLearningType}
+        </if>
+        AND zp.police_id = #{param.loginUserId}
+        ORDER BY ztl.create_time DESC
+    </sql>
+
+    <sql id="queryTrainLearnAllList">
+        SELECT
+        ztl.id AS id,
+        ztl.training_learning_type AS trainingLearningType,
+        ztl.file_name AS zfFileName,
+        ztl.upload_user_name AS uploadUserName,
+        ztl.total_learn_count AS totalLearnCount,
+        ztl.total_download_count AS totalDownloadCount
+        FROM zfda_training_learning ztl
+        WHERE ztl.valid = 1
+        <if test="param.fileName != null and param.fileName != '' ">
+            and ztl.file_name LIKE concat('%',#{param.fileName},'%')
+        </if>
+        ${ew.customSqlSegment}
+    </sql>
+
+    <!--定向展示对应各执法问题的培训内容, 当登陆人员为分局管理员时，展示全部数据-->
+    <select id="queryTrainLearnList" parameterType="com.ww.template.dto.param.TrainLearnQueryParam" resultType="com.ww.template.vo.TrainLearnVo">
+        <choose>
+            <when test="param.searchType == 1">
+                <include refid="queryTrainLearnList"></include>
+            </when>
+            <when test="param.searchType == 2">
+                <include refid="queryTrainLearnAllList"></include>
+            </when>
+        </choose>
+    </select>
+</mapper>
